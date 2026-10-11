@@ -5,6 +5,7 @@ import { Perfume, PlaqueFinish } from '../types/perfume';
 import { PerfumeFlacon } from './PerfumeFlacon';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useBrand } from '../context/BrandContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface ProductModalProps {
@@ -30,6 +31,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 }) => {
   const { isLight } = useTheme();
   const { user } = useAuth();
+  const { formatPrice } = useBrand();
 
   if (!perfume) return null;
 
@@ -296,7 +298,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   }`}
                 >
                   <div className="font-serif text-sm">50 ml Standard Flacon</div>
-                  <div className="text-xs text-[#C9A96E] tabular-nums mt-0.5">${perfume.price50ml} USD</div>
+                  <div className="text-xs text-[#C9A96E] tabular-nums mt-0.5">{formatPrice(perfume.price50ml)}</div>
                 </button>
                 <button
                   onClick={() => {
@@ -314,7 +316,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   }`}
                 >
                   <div className="font-serif text-sm">100 ml Grand Flacon</div>
-                  <div className="text-xs text-[#C9A96E] tabular-nums mt-0.5">${perfume.price100ml} USD</div>
+                  <div className="text-xs text-[#C9A96E] tabular-nums mt-0.5">{formatPrice(perfume.price100ml)}</div>
                 </button>
               </div>
             </div>
@@ -441,7 +443,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               onClick={handleAdd}
               className="w-full py-3.5 bg-gradient-to-r from-[#C9A96E] via-[#DFC287] to-[#B89456] text-[#090A0D] text-xs uppercase tracking-[0.2em] font-semibold rounded hover:opacity-95 shadow-[0_4px_20px_rgba(201,169,110,0.3)] transition-all cursor-pointer"
             >
-              Acquire Flacon (${price} USD)
+              Acquire Flacon ({formatPrice(price)})
             </button>
 
           </div>

@@ -4,6 +4,7 @@ import { Eye, Plus, Droplet } from 'lucide-react';
 import { Perfume } from '../types/perfume';
 import { PerfumeFlacon } from './PerfumeFlacon';
 import { useTheme } from '../context/ThemeContext';
+import { useBrand } from '../context/BrandContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface CollectionGridProps {
@@ -18,6 +19,7 @@ export const CollectionGrid: React.FC<CollectionGridProps> = ({
   onQuickAdd,
 }) => {
   const { isLight } = useTheme();
+  const { formatPrice } = useBrand();
   const [activeFilter, setActiveFilter] = useState<'all' | 'extraits' | 'eaux' | 'woody'>('all');
   const [spritzingId, setSpritzingId] = useState<string | null>(null);
 
@@ -257,10 +259,10 @@ export const CollectionGrid: React.FC<CollectionGridProps> = ({
                     }`}
                   >
                     <span className="truncate max-w-[190px]">
-                      {perfume.pyramid.top[0].name} · {perfume.pyramid.heart[0].name} · {perfume.pyramid.base[0].name}
+                      {perfume.pyramid?.top?.[0]?.name || 'Citrus'} · {perfume.pyramid?.heart?.[0]?.name || 'Floral'} · {perfume.pyramid?.base?.[0]?.name || 'Woods'}
                     </span>
                     <span className="text-[#C9A96E] font-medium text-xs tabular-nums whitespace-nowrap">
-                      ${perfume.price100ml}
+                      {formatPrice(perfume.price100ml)}
                     </span>
                   </div>
                 </div>

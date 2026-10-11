@@ -4,6 +4,7 @@ import { Sparkles, ArrowRight, Droplets } from 'lucide-react';
 import { Perfume, PlaqueFinish } from '../types/perfume';
 import { PerfumeFlacon } from './PerfumeFlacon';
 import { useTheme } from '../context/ThemeContext';
+import { useBrand } from '../context/BrandContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface HeroSectionProps {
@@ -18,6 +19,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onQuickAdd,
 }) => {
   const { isLight } = useTheme();
+  const { brandSettings, formatPrice } = useBrand();
   const [isSpritzing, setIsSpritzing] = useState(false);
   const [monogramText, setMonogramText] = useState('E · V');
   const [selectedSize, setSelectedSize] = useState<'50ml' | '100ml'>('100ml');
@@ -88,7 +90,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 isLight ? 'text-[#1E1C18]' : 'text-[#F8F6F0]'
               }`}
             >
-              Where Rare Petals Meet Sacred Woods.
+              {brandSettings.heroHeadline || 'Where Rare Petals Meet Sacred Woods.'}
             </h1>
 
             <p
@@ -96,9 +98,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 isLight ? 'text-[#5C574F]' : 'text-[#BDB9AE]'
               }`}
             >
-              Distilled in Grasse and aged ninety days in French Limousin oak barrels.
-              Each hand-blown crystal flacon contains the purest olfactory extraits,
-              adorned with bespoke hand-engraved metal plaques.
+              {brandSettings.heroSubheadline ||
+                'Distilled in Grasse and aged ninety days in French Limousin oak barrels. Each hand-blown crystal flacon contains the purest olfactory extraits, adorned with bespoke hand-engraved metal plaques.'}
             </p>
 
             {/* Scent Accord Preview Bar */}
@@ -248,7 +249,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   {heroPerfume.name}
                 </span>
                 <span className="text-[#C9A96E] font-medium tabular-nums text-sm">
-                  ${selectedSize === '100ml' ? heroPerfume.price100ml : heroPerfume.price50ml} USD
+                  {formatPrice(selectedSize === '100ml' ? heroPerfume.price100ml : heroPerfume.price50ml)}
                 </span>
               </div>
 

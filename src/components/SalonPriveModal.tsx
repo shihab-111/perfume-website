@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, User, Package, Sparkles, LogOut, ShieldCheck, Clock, ExternalLink } from 'lucide-react';
+import { X, User, Package, Sparkles, LogOut, ShieldCheck, Clock, ExternalLink, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useBrand } from '../context/BrandContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface SalonPriveModalProps {
@@ -38,6 +39,7 @@ interface BespokeBlendRecord {
 export const SalonPriveModal: React.FC<SalonPriveModalProps> = ({ isOpen, onClose }) => {
   const { user, idToken, signInWithGoogle, signOut } = useAuth();
   const { isLight } = useTheme();
+  const { brandSettings, setIsAdminModalOpen } = useBrand();
 
   const [activeTab, setActiveTab] = useState<'orders' | 'blends'>('orders');
   const [orders, setOrders] = useState<OrderRecord[]>([]);
@@ -360,6 +362,25 @@ export const SalonPriveModal: React.FC<SalonPriveModalProps> = ({ isOpen, onClos
             </div>
           </div>
         )}
+
+        {/* Director Admin Console link */}
+        <div className="mt-6 pt-4 border-t border-[#C9A96E]/20 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-1.5 text-[11px] text-[#A6A298]">
+            <span>Maison Master Directory</span>
+          </div>
+
+          <button
+            onClick={() => {
+              onClose();
+              luxuryAudio.playTap();
+              setIsAdminModalOpen(true);
+            }}
+            className="px-3 py-1.5 bg-[#C9A96E]/15 hover:bg-[#C9A96E]/25 text-[#DFC287] border border-[#C9A96E]/40 rounded-lg text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <Shield className="w-3.5 h-3.5" />
+            <span>Open Atelier Admin Panel</span>
+          </button>
+        </div>
       </motion.div>
     </div>
   );

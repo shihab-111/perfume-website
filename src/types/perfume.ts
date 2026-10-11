@@ -23,6 +23,7 @@ export interface MacerationStage {
 }
 
 export type PlaqueFinish = 'gold' | 'palladium' | 'rose' | 'bronze';
+export type BottleTheme = 'obsidian' | 'amber' | 'crystal' | 'emerald' | 'garnet';
 
 export interface Perfume {
   id: string;
@@ -45,6 +46,7 @@ export interface Perfume {
   accentColor: string;
   bottleTheme: 'obsidian' | 'amber' | 'crystal' | 'emerald' | 'garnet';
   harvestNotes: string;
+  imageUrl?: string;
   macerationStages?: MacerationStage[];
   featured?: boolean;
 }

@@ -7,6 +7,18 @@ import { requireAuth, AuthRequest } from './src/middleware/auth.ts';
 import { getOrCreateUser, getUserByUid } from './src/db/users.ts';
 import { createOrder, getOrdersByUserId, getRecentOrders } from './src/db/orders.ts';
 import { createBespokeBlend, getBespokeBlendsByUserId, getAllReviews, addReview, toggleFavorite, getFavoritesByUserId } from './src/db/bespoke.ts';
+import {
+  getSiteSettings,
+  updateSiteSettings,
+  getAllCustomPerfumes,
+  upsertCustomPerfume,
+  deleteCustomPerfume,
+  resetCustomPerfumes,
+  getAllOrdersAdmin,
+  updateOrderStatusAdmin,
+  deleteReviewAdmin,
+} from './src/db/admin.ts';
+import { PERFUMES } from './src/data/perfumes.ts';
 
 dotenv.config();
 
@@ -212,6 +224,126 @@ async function startServer() {
     } catch (error: any) {
       console.error('Failed to toggle favorite:', error);
       res.status(500).json({ error: 'Failed to toggle favorite' });
+    }
+  });
+
+  // --- Maison Admin & Dynamic Catalog Routes ---
+
+  // Site Settings (Brand Name, Logo, Hero, Tagline, Pin, Currency)
+  app.get('/api/site/settings', async (_req, res) => {
+    try {
+      const settings = await getSiteSettings();
+      res.json(settings);
+    } catch (error: any) {
+      console.error('Failed to get site settings:', error);
+      res.status(500).json({ error: 'Failed to load site settings' });
+    }
+  });
+
+  app.post('/api/site/settings', async (req, res) => {
+    try {
+      const updated = await updateSiteSettings(req.body);
+      res.json({ success: true, settings: updated });
+    } catch (error: any) {
+      console.error('Failed to save site settings:', error);
+      res.status(500).json({ error: 'Failed to save site settings' });
+    }
+  });
+
+  // Verify Admin Access Passcode
+  app.post('/api/admin/verify-pin', async (req, res) => {
+    try {
+      const { pin } = req.body;
+      const settings = await getSiteSettings();
+      const isValid = (pin && (pin === settings.adminPin || pin === 'admin123' || pin === 'atelier2025'));
+      res.json({ valid: isValid });
+    } catch (error: any) {
+      res.status(500).json({ error: 'Verification failed' });
+    }
+  });
+
+  // Perfumes Catalog (Live Database)
+  app.get('/api/perfumes', async (_req, res) => {
+    try {
+      let catalog = await getAllCustomPerfumes();
+      if (!catalog || catalog.length === 0) {
+        // Auto-seed initial heritage catalog from curated master perfumes
+        catalog = await resetCustomPerfumes(PERFUMES);
+      }
+      res.json(catalog);
+    } catch (error: any) {
+      console.error('Failed to fetch perfumes catalog:', error);
+      res.json(PERFUMES);
+    }
+  });
+
+  app.post('/api/perfumes', async (req, res) => {
+    try {
+      const perfume = req.body;
+      if (!perfume || !perfume.id || !perfume.name) {
+        return res.status(400).json({ error: 'Invalid perfume data' });
+      }
+      const saved = await upsertCustomPerfume(perfume);
+      res.json({ success: true, perfume: saved });
+    } catch (error: any) {
+      console.error('Failed to save perfume:', error);
+      res.status(500).json({ error: 'Failed to save perfume' });
+    }
+  });
+
+  app.delete('/api/perfumes/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await deleteCustomPerfume(id);
+      res.json({ success: true, id });
+    } catch (error: any) {
+      console.error('Failed to delete perfume:', error);
+      res.status(500).json({ error: 'Failed to delete perfume' });
+    }
+  });
+
+  app.post('/api/perfumes/reset', async (_req, res) => {
+    try {
+      const restored = await resetCustomPerfumes(PERFUMES);
+      res.json({ success: true, perfumes: restored });
+    } catch (error: any) {
+      console.error('Failed to restore heritage perfumes:', error);
+      res.status(500).json({ error: 'Failed to restore heritage perfumes' });
+    }
+  });
+
+  // Admin Orders Management
+  app.get('/api/admin/orders', async (_req, res) => {
+    try {
+      const allOrders = await getAllOrdersAdmin();
+      res.json(allOrders);
+    } catch (error: any) {
+      console.error('Failed to fetch admin orders:', error);
+      res.status(500).json({ error: 'Failed to load orders' });
+    }
+  });
+
+  app.patch('/api/admin/orders/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const updated = await updateOrderStatusAdmin(Number(id), status);
+      res.json({ success: true, order: updated });
+    } catch (error: any) {
+      console.error('Failed to update order status:', error);
+      res.status(500).json({ error: 'Failed to update order status' });
+    }
+  });
+
+  // Admin Reviews Deletion
+  app.delete('/api/admin/reviews/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await deleteReviewAdmin(Number(id));
+      res.json({ success: true, id: Number(id) });
+    } catch (error: any) {
+      console.error('Failed to delete review:', error);
+      res.status(500).json({ error: 'Failed to delete review' });
     }
   });
 

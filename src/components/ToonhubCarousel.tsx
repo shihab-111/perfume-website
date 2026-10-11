@@ -4,6 +4,7 @@ import { PERFUMES } from '../data/perfumes';
 import { Perfume } from '../types/perfume';
 import { PerfumeFlacon } from './PerfumeFlacon';
 import { useTheme } from '../context/ThemeContext';
+import { useBrand } from '../context/BrandContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface FlaconCarouselProps {
@@ -49,6 +50,7 @@ export const ToonhubCarousel: React.FC<FlaconCarouselProps> = ({
   onSelectPerfume,
 }) => {
   const { isLight } = useTheme();
+  const { brandSettings } = useBrand();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -237,7 +239,7 @@ export const ToonhubCarousel: React.FC<FlaconCarouselProps> = ({
         >
           <div className="flex items-center gap-2.5 sm:gap-3">
             <span className="text-xs font-serif tracking-[0.25em] text-[#C9A96E] font-medium uppercase">
-              AURELIA
+              {brandSettings.brandName || 'AURELIA'}
             </span>
             <span className="opacity-30 text-xs">/</span>
             <span className={`text-[10px] sm:text-[11px] font-sans tracking-[0.2em] uppercase ${isLight ? 'text-[#696357]' : 'text-white/70'}`}>

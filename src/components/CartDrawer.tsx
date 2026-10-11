@@ -3,6 +3,7 @@ import { X, Trash2, Plus, Minus, ShieldCheck, Sparkles, ArrowRight } from 'lucid
 import { CartItem } from '../types/perfume';
 import { COMPLIMENTARY_SAMPLES } from '../data/perfumes';
 import { useTheme } from '../context/ThemeContext';
+import { useBrand } from '../context/BrandContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface CartDrawerProps {
@@ -23,6 +24,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onOpenCheckout,
 }) => {
   const { isLight } = useTheme();
+  const { formatPrice } = useBrand();
   const [selectedSampleIds, setSelectedSampleIds] = useState<string[]>([
     COMPLIMENTARY_SAMPLES[0].id,
     COMPLIMENTARY_SAMPLES[1].id,
@@ -131,7 +133,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                       <div className="text-right">
                         <div className={`text-sm font-medium tabular-nums ${isLight ? 'text-[#1E1C18]' : 'text-[#F8F6F0]'}`}>
-                          ${item.price * item.quantity} USD
+                          {formatPrice(item.price * item.quantity)}
                         </div>
                         <button
                           onClick={() => onRemoveItem(item.id)}
@@ -237,7 +239,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className={`flex justify-between text-base font-serif pt-1 ${isLight ? 'text-[#1E1C18]' : 'text-[#F8F6F0]'}`}>
                 <span>Subtotal</span>
                 <span className="text-[#C9A96E] font-sans font-medium tabular-nums text-lg">
-                  ${subtotal} USD
+                  {formatPrice(subtotal)}
                 </span>
               </div>
             </div>

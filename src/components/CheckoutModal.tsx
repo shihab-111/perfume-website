@@ -3,6 +3,7 @@ import { X, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
 import { CartItem } from '../types/perfume';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useBrand } from '../context/BrandContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface CheckoutModalProps {
@@ -22,6 +23,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 }) => {
   const { isLight } = useTheme();
   const { user, idToken } = useAuth();
+  const { formatPrice, brandSettings } = useBrand();
 
   if (!isOpen) return null;
 
@@ -265,7 +267,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 className="w-full py-4 bg-gradient-to-r from-[#C9A96E] via-[#DFC287] to-[#B89456] text-[#090A0D] text-xs uppercase tracking-[0.2em] font-semibold rounded hover:opacity-95 shadow-[0_4px_20px_rgba(201,169,110,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin text-[#090A0D]" />}
-                <span>{isSubmitting ? 'Registering Order in Cloud SQL...' : `Confirm Allocation & Place Order ($${subtotal} USD)`}</span>
+                <span>{isSubmitting ? 'Registering Order in Cloud SQL...' : `Confirm Allocation & Place Order (${formatPrice(subtotal)})`}</span>
               </button>
             </form>
           </div>

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { BrandProvider, useBrand } from './context/BrandContext';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { ToonhubCarousel } from './components/ToonhubCarousel';
@@ -15,6 +16,7 @@ import { ProductModal } from './components/ProductModal';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { SalonPriveModal } from './components/SalonPriveModal';
+import { AdminPanelModal } from './components/AdminPanelModal';
 import { Footer } from './components/Footer';
 import { MistCanvas } from './components/MistCanvas';
 import { CursorAura } from './components/CursorAura';
@@ -24,6 +26,7 @@ import { luxuryAudio } from './utils/audio';
 
 function AureliaApp() {
   const { isLight } = useTheme();
+  const { perfumes, brandSettings, setIsAdminModalOpen } = useBrand();
 
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
@@ -48,7 +51,19 @@ function AureliaApp() {
   const [checkoutSamples, setCheckoutSamples] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const heroPerfume = PERFUMES[0]; // Oud Céleste
+  // Keyboard shortcut Ctrl+Shift+A or Alt+A to toggle Admin Panel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') || (e.altKey && e.key.toLowerCase() === 'a')) {
+        e.preventDefault();
+        setIsAdminModalOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setIsAdminModalOpen]);
+
+  const heroPerfume = perfumes.find((p) => p.featured) || perfumes[0] || PERFUMES[0];
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -188,25 +203,25 @@ function AureliaApp() {
 
         {/* Collection Grid */}
         <CollectionGrid
-          perfumes={PERFUMES}
+          perfumes={perfumes}
           onSelectPerfume={(p) => setSelectedPerfume(p)}
           onQuickAdd={handleAddToCart}
         />
 
         {/* Olfactory Pyramid Section */}
         <OlfactoryPyramidSection
-          perfumes={PERFUMES}
+          perfumes={perfumes}
           onOpenDetails={(p) => setSelectedPerfume(p)}
         />
 
         {/* Interactive 90-Day Maceration Chamber */}
         <div id="maceration">
-          <MacerationChamber perfumes={PERFUMES} />
+          <MacerationChamber perfumes={perfumes} />
         </div>
 
         {/* Discovery Coffret Builder */}
         <DiscoveryCoffretBuilder
-          perfumes={PERFUMES}
+          perfumes={perfumes}
           onAddCoffret={handleAddCoffret}
         />
 
@@ -221,7 +236,7 @@ function AureliaApp() {
       <FragranceSommelier
         isOpen={isQuizOpen}
         onClose={() => setIsQuizOpen(false)}
-        perfumes={PERFUMES}
+        perfumes={perfumes}
         onSelectPerfume={(p) => setSelectedPerfume(p)}
         onQuickAdd={handleAddToCart}
       />
@@ -258,6 +273,9 @@ function AureliaApp() {
         onClose={() => setIsSalonPriveOpen(false)}
       />
 
+      {/* Maison Atelier Admin Panel (Control Perfume Images, Brand, Logo, Prices) */}
+      <AdminPanelModal />
+
       {/* Subtle Toast Feedback Notification */}
       <AnimatePresence>
         {toastMessage && (
@@ -284,7 +302,9 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <AureliaApp />
+        <BrandProvider>
+          <AureliaApp />
+        </BrandProvider>
       </ThemeProvider>
     </AuthProvider>
   );

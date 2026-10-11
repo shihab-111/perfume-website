@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, ShoppingBag, Sun, Moon, Menu, X, Sparkles, User } from 'lucide-react';
+import { Volume2, VolumeX, ShoppingBag, Sun, Moon, Menu, X, Sparkles, User, Shield } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useBrand } from '../context/BrandContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface NavbarProps {
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const { isLight, toggleTheme } = useTheme();
   const { user } = useAuth();
+  const { brandSettings, setIsAdminModalOpen, isAdmin } = useBrand();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -58,6 +60,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             : 'bg-[#090A0D]/75 backdrop-blur-sm border-white/5'
         }`}
       >
+        {/* Top Announcement Bar from Admin Settings */}
+        {brandSettings.announcementBar && (
+          <div className="bg-[#07080B] border-b border-[#C9A96E]/20 text-[#DFC287] py-1 px-4 text-center text-[9px] sm:text-[10px] tracking-[0.22em] uppercase font-mono overflow-hidden truncate">
+            {brandSettings.announcementBar}
+          </div>
+        )}
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4 sm:gap-8">
           
           {/* Mobile Menu Hamburger Toggle */}
@@ -78,16 +87,28 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
 
-          {/* Zone 1: Brand Wordmark */}
+          {/* Zone 1: Brand Wordmark / Logo Image */}
           <a
             href="#"
-            className={`text-2xl md:text-3xl font-serif tracking-[0.24em] transition-colors whitespace-nowrap shrink-0 ${
-              isLight
-                ? 'text-[#1E1C18] hover:text-[#9C7A3E]'
-                : 'text-[#F5F2EB] hover:text-[#C9A96E]'
-            }`}
+            className="flex items-center gap-2.5 transition-colors whitespace-nowrap shrink-0 group cursor-pointer"
           >
-            AURELIA
+            {brandSettings.logoUrl && (
+              <img
+                src={brandSettings.logoUrl}
+                alt={brandSettings.brandName}
+                className="h-7 sm:h-8 object-contain"
+                onError={(e) => (e.currentTarget.style.display = 'none')}
+              />
+            )}
+            <span
+              className={`text-2xl md:text-3xl font-serif tracking-[0.24em] transition-colors ${
+                isLight
+                  ? 'text-[#1E1C18] group-hover:text-[#9C7A3E]'
+                  : 'text-[#F5F2EB] group-hover:text-[#C9A96E]'
+              }`}
+            >
+              {brandSettings.logoText || brandSettings.brandName || 'AURELIA'}
+            </span>
           </a>
 
           {/* Zone 2: Desktop Navigation Links */}
@@ -195,6 +216,28 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
+            {/* Atelier Director Admin Console Trigger */}
+            <button
+              onClick={() => {
+                luxuryAudio.playTap();
+                setIsAdminModalOpen(true);
+              }}
+              aria-label="Atelier Director Admin Console"
+              title="Atelier Admin (Change perfumes, images, prices, brand, logo)"
+              className={`p-1.5 sm:p-2 rounded-full transition-all cursor-pointer flex items-center gap-1.5 border ${
+                isAdmin
+                  ? 'border-[#C9A96E] bg-[#C9A96E]/20 text-[#DFC287] shadow-[0_0_12px_rgba(201,169,110,0.3)]'
+                  : isLight
+                  ? 'border-[#DDD5C7] text-[#7A7365] hover:text-[#1E1C18] hover:border-[#9C7A3E]'
+                  : 'border-white/15 text-[#9E9A90] hover:text-[#C9A96E] hover:border-[#C9A96E]/50'
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              <span className="hidden xl:inline text-[10px] uppercase tracking-wider font-semibold">
+                Admin
+              </span>
+            </button>
+
             {/* Shopping Bag Trigger */}
             <button
               onClick={() => {
@@ -257,6 +300,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span>Salon Privé</span>
               </button>
             </div>
+
+            {/* Atelier Admin Button in Mobile Drawer */}
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                luxuryAudio.playTap();
+                setIsAdminModalOpen(true);
+              }}
+              className="w-full py-2.5 px-3 rounded-xl text-xs uppercase tracking-widest font-semibold bg-[#C9A96E]/15 border border-[#C9A96E]/40 text-[#DFC287] flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            >
+              <Shield className="w-4 h-4" />
+              <span>Maison Atelier Admin Panel</span>
+            </button>
 
             {/* Nav links */}
             <div className="flex flex-col space-y-1">

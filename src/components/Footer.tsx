@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, Shield } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useBrand } from '../context/BrandContext';
 import { luxuryAudio } from '../utils/audio';
 
 export const Footer: React.FC = () => {
   const { isLight } = useTheme();
+  const { brandSettings, setIsAdminModalOpen, isAdmin } = useBrand();
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
@@ -34,14 +36,13 @@ export const Footer: React.FC = () => {
                 isLight ? 'text-[#1E1C18]' : 'text-[#F8F6F0]'
               }`}
             >
-              AURELIA
+              {brandSettings.brandName || 'AURELIA'}
             </span>
             <p className={`text-xs leading-relaxed max-w-sm ${isLight ? 'text-[#696357]' : 'text-[#87837A]'}`}>
-              Maison de Haute Parfumerie fondée à Grasse.
-              Distilling rare botanicals and aged resins into sovereign extrait compositions.
+              {brandSettings.brandTagline || 'Maison de Haute Parfumerie fondée à Grasse. Distilling rare botanicals and aged resins into sovereign extrait compositions.'}
             </p>
             <div className="text-[11px] text-[#C9A96E] font-medium tracking-widest uppercase">
-              Paris · Grasse · London · Tokyo
+              {brandSettings.brandCities || 'Paris · Grasse · London · Tokyo'}
             </div>
           </div>
 
@@ -142,14 +143,23 @@ export const Footer: React.FC = () => {
         {/* Bottom Bar: Quiet unboxed metadata */}
         <div className={`pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs ${isLight ? 'text-[#7D766A]' : 'text-[#6B6862]'}`}>
           <div>
-            © 2026 AURELIA Haute Parfumerie SAS. All rights reserved.
+            © 2026 {brandSettings.brandName || 'AURELIA'} Haute Parfumerie SAS. All rights reserved.
           </div>
           <div className="flex items-center gap-4 text-[11px]">
             <a href="#" className={`transition-colors ${isLight ? 'hover:text-[#1E1C18]' : 'hover:text-white'}`}>Privacy Policy</a>
             <span aria-hidden="true">·</span>
             <a href="#" className={`transition-colors ${isLight ? 'hover:text-[#1E1C18]' : 'hover:text-white'}`}>Terms of Service</a>
             <span aria-hidden="true">·</span>
-            <a href="#" className={`transition-colors ${isLight ? 'hover:text-[#1E1C18]' : 'hover:text-white'}`}>Sourcing Transparency</a>
+            <button
+              onClick={() => {
+                luxuryAudio.playTap();
+                setIsAdminModalOpen(true);
+              }}
+              className="text-[#C9A96E] hover:underline flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <Shield className="w-3 h-3" />
+              <span>Atelier Admin Panel</span>
+            </button>
           </div>
         </div>
 

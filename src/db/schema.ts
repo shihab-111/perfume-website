@@ -60,6 +60,22 @@ export const reviews = pgTable('reviews', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+// Brand & Maison Site Settings (Admin Controlled)
+export const siteSettings = pgTable('site_settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Perfumes Catalog (Admin Controlled with custom images, prices, notes)
+export const perfumesCustom = pgTable('perfumes_custom', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  data: text('data').notNull(), // Full JSON serialized Perfume object
+  sortOrder: integer('sort_order').default(0),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
   orders: many(orders),
   bespokeBlends: many(bespokeBlends),

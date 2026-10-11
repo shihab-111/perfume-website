@@ -274,6 +274,35 @@ export const PerfumeFlacon: React.FC<PerfumeFlaconProps> = ({
           }
         }}
       >
+        {perfume.imageUrl ? (
+          <div
+            className="relative rounded-2xl overflow-hidden shadow-[0_25px_50px_rgba(0,0,0,0.85)] border border-[#C9A96E]/40 group flex flex-col items-center justify-center bg-black/60 max-w-[82vw] sm:max-w-none"
+            style={{
+              width: currentSize.width,
+              height: currentSize.height,
+              maxHeight: size === 'hero' ? 'min(480px, 52vh)' : size === 'lg' ? 'min(380px, 45vh)' : undefined,
+            }}
+          >
+            <img
+              src={perfume.imageUrl}
+              alt={perfume.name}
+              className="w-full h-full object-cover object-center filter brightness-[0.96] contrast-[1.05] group-hover:scale-105 transition-transform duration-700"
+            />
+            {/* Subtle glass reflection & gold rim vignette */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/25 pointer-events-none" />
+            <div className="absolute inset-0 border border-white/20 rounded-2xl pointer-events-none" />
+
+            {/* Overlaid Engraved Haute Plaque */}
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-[78%] px-3 py-2 rounded border border-[#DFC287]/90 bg-[#C9A96E]/95 backdrop-blur-md text-center shadow-lg pointer-events-none">
+              <span className="block text-[9px] tracking-[0.24em] uppercase text-[#1B1812] font-semibold truncate font-serif">
+                {perfume.name}
+              </span>
+              <span className="block text-[7px] tracking-[0.2em] uppercase text-[#3E3524] truncate">
+                {engraving ? `« ${engraving} »` : perfume.subtitle}
+              </span>
+            </div>
+          </div>
+        ) : (
         <svg
           width={currentSize.width}
           height={currentSize.height}
@@ -683,6 +712,7 @@ export const PerfumeFlacon: React.FC<PerfumeFlaconProps> = ({
             strokeLinecap="round"
           />
         </svg>
+        )}
       </div>
 
       {/* Interactive Drag & Spritz hint */}
