@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, ShoppingBag, Sun, Moon, Menu, X, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX, ShoppingBag, Sun, Moon, Menu, X, Sparkles, User } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface NavbarProps {
   cartCount: number;
   onOpenCart: () => void;
   onOpenQuiz: () => void;
+  onOpenSalonPrive: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   cartCount,
   onOpenCart,
   onOpenQuiz,
+  onOpenSalonPrive,
 }) => {
   const { isLight, toggleTheme } = useTheme();
+  const { user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -159,6 +163,38 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Scent Finder</span>
             </button>
 
+            {/* Salon Privé (Cloud SQL Collector Vault) Trigger */}
+            <button
+              onClick={() => {
+                luxuryAudio.playTap();
+                onOpenSalonPrive();
+              }}
+              aria-label="Le Salon Privé collector vault"
+              title={user ? `Salon Privé: ${user.displayName || user.email}` : 'Sign In to Salon Privé'}
+              className={`p-1.5 sm:p-2 rounded-full transition-all cursor-pointer flex items-center gap-1.5 border ${
+                user
+                  ? 'border-[#C9A96E]/50 bg-[#C9A96E]/10 text-[#C9A96E]'
+                  : isLight
+                  ? 'border-transparent text-[#7A7365] hover:text-[#1E1C18] hover:bg-black/5'
+                  : 'border-transparent text-[#9E9A90] hover:text-[#C9A96E] hover:bg-white/5'
+              }`}
+            >
+              {user?.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName || 'Collector'}
+                  className="w-5 h-5 rounded-full object-cover"
+                />
+              ) : (
+                <User className="w-4 h-4" />
+              )}
+              {user && (
+                <span className="hidden xl:inline text-[10px] uppercase tracking-wider font-semibold">
+                  Privé
+                </span>
+              )}
+            </button>
+
             {/* Shopping Bag Trigger */}
             <button
               onClick={() => {
@@ -193,17 +229,34 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             {/* Prominent Scent Finder Banner in Mobile Drawer */}
-            <button
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                luxuryAudio.playTap();
-                onOpenQuiz();
-              }}
-              className="w-full py-3 px-4 rounded-xl text-xs font-semibold uppercase tracking-[0.18em] text-[#090A0D] bg-gradient-to-r from-[#D9BA7C] via-[#EDD6A4] to-[#C9A96E] shadow-md flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Find Your Bespoke Perfume</span>
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  luxuryAudio.playTap();
+                  onOpenQuiz();
+                }}
+                className="py-3 px-3 rounded-xl text-[11px] font-semibold uppercase tracking-[0.14em] text-[#090A0D] bg-gradient-to-r from-[#D9BA7C] via-[#EDD6A4] to-[#C9A96E] shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Scent Finder</span>
+              </button>
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  luxuryAudio.playTap();
+                  onOpenSalonPrive();
+                }}
+                className={`py-3 px-3 rounded-xl text-[11px] font-semibold uppercase tracking-[0.14em] border shadow-sm flex items-center justify-center gap-1.5 cursor-pointer ${
+                  isLight
+                    ? 'bg-white border-[#C9A96E]/40 text-[#1E1C18]'
+                    : 'bg-white/5 border-[#C9A96E]/40 text-white'
+                }`}
+              >
+                <User className="w-3.5 h-3.5 text-[#C9A96E]" />
+                <span>Salon Privé</span>
+              </button>
+            </div>
 
             {/* Nav links */}
             <div className="flex flex-col space-y-1">

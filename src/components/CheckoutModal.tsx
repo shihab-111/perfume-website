@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { X, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
 import { CartItem } from '../types/perfume';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface CheckoutModalProps {
@@ -20,13 +21,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onOrderComplete,
 }) => {
   const { isLight } = useTheme();
+  const { user, idToken } = useAuth();
 
   if (!isOpen) return null;
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderDbId, setOrderDbId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
-    name: 'Eleanor Vance',
-    email: 'eleanor.vance@maison.com',
+    name: user?.displayName || 'Eleanor Vance',
+    email: user?.email || 'eleanor.vance@maison.com',
     address: '42 Place Vendôme',
     city: 'Paris',
     postalCode: '75001',
@@ -36,10 +40,41 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const trackingNumber = `AUR-2026-FR-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     luxuryAudio.playChime(1046.5, 0.12, 1.2);
-    setIsSubmitted(true);
+
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerName: formData.name,
+          customerEmail: formData.email,
+          items: JSON.stringify(items),
+          totalAmount: subtotal,
+          currency: 'USD',
+          shippingAddress: `${formData.address}, ${formData.city} ${formData.postalCode}, ${formData.country}`,
+          engravingText: items.find(i => i.engraving)?.engraving || null,
+          token: idToken || undefined,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.order?.id) {
+          setOrderDbId(data.order.id);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save order to Cloud SQL:', err);
+    } finally {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+    }
   };
 
   const handleFinish = () => {
@@ -226,9 +261,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-[#C9A96E] via-[#DFC287] to-[#B89456] text-[#090A0D] text-xs uppercase tracking-[0.2em] font-semibold rounded hover:opacity-95 shadow-[0_4px_20px_rgba(201,169,110,0.3)] transition-all cursor-pointer"
+                disabled={isSubmitting}
+                className="w-full py-4 bg-gradient-to-r from-[#C9A96E] via-[#DFC287] to-[#B89456] text-[#090A0D] text-xs uppercase tracking-[0.2em] font-semibold rounded hover:opacity-95 shadow-[0_4px_20px_rgba(201,169,110,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2"
               >
-                Confirm Allocation & Place Order (${subtotal} USD)
+                {isSubmitting && <Loader2 className="w-4 h-4 animate-spin text-[#090A0D]" />}
+                <span>{isSubmitting ? 'Registering Order in Cloud SQL...' : `Confirm Allocation & Place Order ($${subtotal} USD)`}</span>
               </button>
             </form>
           </div>
@@ -241,13 +278,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
             <div className="space-y-2">
               <span className="text-[11px] uppercase tracking-[0.25em] text-[#C9A96E] font-medium block">
-                Allocation Confirmed
+                Allocation Confirmed & Recorded
               </span>
               <h3 className={`text-3xl font-serif ${isLight ? 'text-[#1E1C18]' : 'text-[#F8F6F0]'}`}>
                 Merci, {formData.name}
               </h3>
               <p className={`text-xs max-w-md mx-auto leading-relaxed ${isLight ? 'text-[#696357]' : 'text-[#A8A49A]'}`}>
-                Your bespoke order is now registered at our Grasse atelier.
+                Your bespoke order is now registered at our Grasse atelier and recorded into your Cloud SQL database.
+                {orderDbId && <span className="block mt-1 font-mono text-[#C9A96E]">Database Record: #ORD-{String(orderDbId).padStart(4, '0')}</span>}
                 Our master perfumer is hand-inspecting each flacon and chiseling your metal monogram plate.
               </p>
             </div>

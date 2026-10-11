@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { X, Droplets, Shield } from 'lucide-react';
+import { X, Droplets, Shield, Star, MessageSquarePlus, Check } from 'lucide-react';
 import { Perfume, PlaqueFinish } from '../types/perfume';
 import { PerfumeFlacon } from './PerfumeFlacon';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface ProductModalProps {
@@ -12,12 +13,23 @@ interface ProductModalProps {
   onAddToCart: (perfume: Perfume, size: '50ml' | '100ml', engraving?: string, plaqueFinish?: PlaqueFinish) => void;
 }
 
+interface ReviewItem {
+  id: number;
+  fragranceId: string;
+  authorName: string;
+  rating: number;
+  comment: string;
+  verified: number;
+  createdAt: string;
+}
+
 export const ProductModal: React.FC<ProductModalProps> = ({
   perfume,
   onClose,
   onAddToCart,
 }) => {
   const { isLight } = useTheme();
+  const { user } = useAuth();
 
   if (!perfume) return null;
 
@@ -26,13 +38,67 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [engraving, setEngraving] = useState('');
   const [isSpritzing, setIsSpritzing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [showAddReview, setShowAddReview] = useState(false);
+  const [reviewName, setReviewName] = useState(user?.displayName || '');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewText, setReviewText] = useState('');
+  const [isPostingReview, setIsPostingReview] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (perfume?.id) {
+      fetchReviews();
+    }
+  }, [perfume?.id]);
+
+  const fetchReviews = async () => {
+    try {
+      const res = await fetch(`/api/reviews?fragranceId=${perfume.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setReviews(data);
+      }
+    } catch (err) {
+      console.error('Failed to load reviews from Cloud SQL:', err);
+    }
+  };
+
+  const handlePostReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewText.trim()) return;
+    setIsPostingReview(true);
+    luxuryAudio.playTap();
+
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fragranceId: perfume.id,
+          authorName: reviewName.trim() || user?.displayName || 'Collector',
+          rating: reviewRating,
+          comment: reviewText.trim(),
+        }),
+      });
+
+      if (res.ok) {
+        setReviewText('');
+        setShowAddReview(false);
+        await fetchReviews();
+      }
+    } catch (err) {
+      console.error('Failed to post review:', err);
+    } finally {
+      setIsPostingReview(false);
+    }
+  };
 
   const price = selectedSize === '100ml' ? perfume.price100ml : perfume.price50ml;
 
@@ -274,6 +340,94 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     : 'bg-black/40 border-white/15 text-white focus:border-[#C9A96E] placeholder:text-white/20'
                 }`}
               />
+            </div>
+
+            {/* Reviews Section from Cloud SQL */}
+            <div
+              className={`p-3.5 rounded-xl border space-y-2.5 text-xs ${
+                isLight ? 'bg-white border-[#E8E2D6]' : 'bg-white/[0.02] border-white/5'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Star className="w-3.5 h-3.5 fill-[#C9A96E] text-[#C9A96E]" />
+                  <span className={`font-medium ${isLight ? 'text-[#1E1C18]' : 'text-white'}`}>
+                    Patron Reviews ({reviews.length})
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddReview(!showAddReview)}
+                  className="text-[11px] text-[#C9A96E] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <MessageSquarePlus className="w-3 h-3" />
+                  <span>{showAddReview ? 'Cancel' : 'Add Review'}</span>
+                </button>
+              </div>
+
+              {showAddReview && (
+                <form onSubmit={handlePostReview} className="space-y-2 pt-2 border-t border-[#C9A96E]/20">
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      placeholder="Your Name / City"
+                      value={reviewName}
+                      onChange={(e) => setReviewName(e.target.value)}
+                      className={`p-2 rounded text-xs border focus:outline-none focus:border-[#C9A96E] ${
+                        isLight ? 'bg-[#FAF8F5] border-[#DDD5C7] text-black' : 'bg-black/40 border-white/10 text-white'
+                      }`}
+                    />
+                    <select
+                      value={reviewRating}
+                      onChange={(e) => setReviewRating(Number(e.target.value))}
+                      className={`p-2 rounded text-xs border focus:outline-none focus:border-[#C9A96E] ${
+                        isLight ? 'bg-[#FAF8F5] border-[#DDD5C7] text-black' : 'bg-black/40 border-white/10 text-white'
+                      }`}
+                    >
+                      <option value={5}>★★★★★ (5 Stars)</option>
+                      <option value={4}>★★★★☆ (4 Stars)</option>
+                      <option value={3}>★★★☆☆ (3 Stars)</option>
+                    </select>
+                  </div>
+                  <textarea
+                    rows={2}
+                    placeholder="Share your olfactory impressions..."
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                    required
+                    className={`w-full p-2 rounded text-xs border focus:outline-none focus:border-[#C9A96E] ${
+                      isLight ? 'bg-[#FAF8F5] border-[#DDD5C7] text-black' : 'bg-black/40 border-white/10 text-white'
+                    }`}
+                  />
+                  <button
+                    type="submit"
+                    disabled={isPostingReview}
+                    className="w-full py-2 bg-[#C9A96E] text-[#090A0D] rounded font-medium text-xs hover:opacity-90 cursor-pointer disabled:opacity-50"
+                  >
+                    {isPostingReview ? 'Publishing to Database...' : 'Submit Verified Review'}
+                  </button>
+                </form>
+              )}
+
+              <div className="max-h-28 overflow-y-auto space-y-2 pr-1">
+                {reviews.length === 0 ? (
+                  <p className={`text-[11px] ${isLight ? 'text-[#8C8880]' : 'text-white/40'}`}>
+                    Be the first collector to review this formulation.
+                  </p>
+                ) : (
+                  reviews.map((rev) => (
+                    <div key={rev.id} className={`text-[11px] pb-1.5 border-b last:border-0 ${isLight ? 'border-[#F2ECE0]' : 'border-white/5'}`}>
+                      <div className="flex justify-between items-center text-[#C9A96E]">
+                        <span className="font-medium text-xs">{rev.authorName}</span>
+                        <span>{'★'.repeat(rev.rating)}</span>
+                      </div>
+                      <p className={`mt-0.5 ${isLight ? 'text-[#5C574F]' : 'text-[#A09C94]'}`}>
+                        &quot;{rev.comment}&quot;
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
 
             {/* Inclusions trust note */}

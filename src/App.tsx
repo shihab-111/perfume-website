@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { ToonhubCarousel } from './components/ToonhubCarousel';
@@ -13,6 +14,7 @@ import { FragranceSommelier } from './components/FragranceSommelier';
 import { ProductModal } from './components/ProductModal';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
+import { SalonPriveModal } from './components/SalonPriveModal';
 import { Footer } from './components/Footer';
 import { MistCanvas } from './components/MistCanvas';
 import { CursorAura } from './components/CursorAura';
@@ -40,6 +42,7 @@ function AureliaApp() {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
+  const [isSalonPriveOpen, setIsSalonPriveOpen] = useState(false);
   const [selectedPerfume, setSelectedPerfume] = useState<Perfume | null>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [checkoutSamples, setCheckoutSamples] = useState<string[]>([]);
@@ -165,6 +168,7 @@ function AureliaApp() {
         cartCount={cartTotalCount}
         onOpenCart={() => setIsCartOpen(true)}
         onOpenQuiz={() => setIsQuizOpen(true)}
+        onOpenSalonPrive={() => setIsSalonPriveOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -248,6 +252,12 @@ function AureliaApp() {
         onOrderComplete={handleOrderComplete}
       />
 
+      {/* Le Salon Privé Modal (Collector Vault & Database Records) */}
+      <SalonPriveModal
+        isOpen={isSalonPriveOpen}
+        onClose={() => setIsSalonPriveOpen(false)}
+      />
+
       {/* Subtle Toast Feedback Notification */}
       <AnimatePresence>
         {toastMessage && (
@@ -272,8 +282,10 @@ function AureliaApp() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AureliaApp />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <AureliaApp />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
