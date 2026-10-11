@@ -71,11 +71,12 @@ export const CollectionGrid: React.FC<CollectionGridProps> = ({
 
           {/* Interactive Category Filter Bar */}
           <div
-            className={`flex items-center gap-1.5 p-1 rounded-lg shrink-0 overflow-x-auto border ${
+            className={`flex items-center gap-1.5 p-1 rounded-lg shrink-0 overflow-x-auto flex-nowrap border max-w-full ${
               isLight
                 ? 'bg-black/[0.04] border-[#DDD6C8]'
                 : 'bg-white/[0.04] border-white/10'
             }`}
+            style={{ WebkitOverflowScrolling: 'touch' }}
           >
             {[
               { id: 'all', label: 'All Flacons' },
@@ -126,7 +127,7 @@ export const CollectionGrid: React.FC<CollectionGridProps> = ({
               >
                 {/* Product Visual Container */}
                 <div
-                  className={`relative h-80 flex items-center justify-center p-6 overflow-hidden ${
+                  className={`relative h-72 sm:h-80 flex items-center justify-center p-4 sm:p-6 overflow-hidden ${
                     isLight
                       ? 'bg-gradient-to-b from-[#F2ECE0] to-[#E9E2D4]'
                       : 'bg-gradient-to-b from-[#161821] to-[#0D0F14]'
@@ -142,7 +143,7 @@ export const CollectionGrid: React.FC<CollectionGridProps> = ({
 
                   {/* Single subtle text tag at top left */}
                   <div
-                    className={`absolute top-4 left-4 z-10 text-[11px] font-medium tracking-widest uppercase ${
+                    className={`absolute top-3.5 left-3.5 sm:top-4 sm:left-4 z-10 text-[10px] sm:text-[11px] font-medium tracking-widest uppercase ${
                       isLight ? 'text-[#7D766A]' : 'text-[#9E9A90]'
                     }`}
                   >
@@ -153,7 +154,7 @@ export const CollectionGrid: React.FC<CollectionGridProps> = ({
                   <button
                     onClick={(e) => handleCardSpritz(e, perfume)}
                     title="Spritz fragrance note sample"
-                    className={`absolute top-4 right-4 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all border cursor-pointer ${
+                    className={`absolute top-3.5 right-3.5 sm:top-4 sm:right-4 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all border cursor-pointer ${
                       isLight
                         ? 'bg-white/80 border-[#DDD5C7] text-[#1E1C18] hover:bg-[#C9A96E] hover:text-[#090A0D]'
                         : 'bg-white/[0.06] border-white/10 text-white/70 hover:bg-[#C9A96E] hover:text-[#090A0D]'
@@ -171,12 +172,12 @@ export const CollectionGrid: React.FC<CollectionGridProps> = ({
                     />
                   </div>
 
-                  {/* Hover Reveal Actions Overlay */}
+                  {/* Actions Overlay (Always visible on mobile/touch, hover-revealed on desktop) */}
                   <div
-                    className={`absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-between gap-3 z-20 ${
+                    className={`absolute inset-x-0 bottom-0 p-3 sm:p-4 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-between gap-2 sm:gap-3 z-20 ${
                       isLight
-                        ? 'bg-gradient-to-t from-white via-white/80 to-transparent'
-                        : 'bg-gradient-to-t from-[#0D0F14] via-[#0D0F14]/85 to-transparent'
+                        ? 'bg-gradient-to-t from-white via-white/85 to-transparent'
+                        : 'bg-gradient-to-t from-[#0D0F14] via-[#0D0F14]/90 to-transparent'
                     }`}
                   >
                     <button
@@ -185,14 +186,14 @@ export const CollectionGrid: React.FC<CollectionGridProps> = ({
                         luxuryAudio.playTap();
                         onSelectPerfume(perfume);
                       }}
-                      className={`flex-1 py-2 text-[11px] uppercase tracking-wider font-medium rounded flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                      className={`flex-1 py-2 text-[10px] sm:text-[11px] uppercase tracking-wider font-medium rounded flex items-center justify-center gap-1.5 transition-colors cursor-pointer border ${
                         isLight
-                          ? 'bg-black/5 hover:bg-black/10 text-[#1E1C18]'
-                          : 'bg-white/10 hover:bg-white/20 text-white'
+                          ? 'bg-white/90 border-[#DDD5C7] hover:bg-black/10 text-[#1E1C18]'
+                          : 'bg-white/10 border-white/10 hover:bg-white/20 text-white'
                       }`}
                     >
                       <Eye className="w-3.5 h-3.5 text-[#C9A96E]" />
-                      <span>Olfactory Notes</span>
+                      <span>Notes</span>
                     </button>
 
                     <button
@@ -201,7 +202,7 @@ export const CollectionGrid: React.FC<CollectionGridProps> = ({
                         luxuryAudio.playChime();
                         onQuickAdd(perfume, '100ml');
                       }}
-                      className="py-2 px-3 bg-[#C9A96E] hover:bg-[#DFC287] text-[#090A0D] text-[11px] uppercase tracking-wider font-semibold rounded flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      className="py-2 px-3 bg-[#C9A96E] hover:bg-[#DFC287] text-[#090A0D] text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold rounded flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-xs shrink-0"
                       title="Quick add 100ml to bag"
                     >
                       <Plus className="w-3.5 h-3.5" />

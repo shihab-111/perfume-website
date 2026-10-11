@@ -18,6 +18,14 @@ export const OlfactoryPyramidSection: React.FC<OlfactoryPyramidSectionProps> = (
   const [selectedPerfumeId, setSelectedPerfumeId] = useState<string>(perfumes[0].id);
   const [activeTier, setActiveTier] = useState<'top' | 'heart' | 'base'>('heart');
   const [isSpritzing, setIsSpritzing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const selectedPerfume = perfumes.find((p) => p.id === selectedPerfumeId) || perfumes[0];
 
@@ -89,7 +97,10 @@ export const OlfactoryPyramidSection: React.FC<OlfactoryPyramidSectionProps> = (
         </div>
 
         {/* Perfume Selector Tabs */}
-        <div className="flex items-center justify-center gap-2 mb-10 sm:mb-12 flex-wrap">
+        <div
+          className="flex items-center sm:justify-center gap-2 mb-10 sm:mb-12 overflow-x-auto flex-nowrap sm:flex-wrap p-1 max-w-full"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           {perfumes.map((p) => (
             <button
               key={p.id}
@@ -97,7 +108,7 @@ export const OlfactoryPyramidSection: React.FC<OlfactoryPyramidSectionProps> = (
                 luxuryAudio.playTap();
                 setSelectedPerfumeId(p.id);
               }}
-              className={`px-4 py-2 text-xs uppercase tracking-[0.16em] font-medium rounded transition-all cursor-pointer ${
+              className={`px-3.5 sm:px-4 py-2 text-xs uppercase tracking-[0.16em] font-medium rounded transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 p.id === selectedPerfumeId
                   ? 'bg-[#C9A96E] text-[#090A0D] shadow-md'
                   : isLight
@@ -230,7 +241,7 @@ export const OlfactoryPyramidSection: React.FC<OlfactoryPyramidSectionProps> = (
           <div className="lg:col-span-3 flex flex-col items-center justify-center py-4">
             <PerfumeFlacon
               perfume={selectedPerfume}
-              size="md"
+              size={isMobile ? 'sm' : 'md'}
               showSpritzEffect={isSpritzing}
               onSpritz={handleSpritz}
             />

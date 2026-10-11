@@ -25,6 +25,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [plaqueFinish, setPlaqueFinish] = useState<PlaqueFinish>('gold');
   const [engraving, setEngraving] = useState('');
   const [isSpritzing, setIsSpritzing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const price = selectedSize === '100ml' ? perfume.price100ml : perfume.price50ml;
 
@@ -93,12 +101,12 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             </div>
 
             {/* 3D Flacon with Plaque and Drag Rotation */}
-            <div className="my-4 sm:my-6">
+            <div className="my-3 sm:my-6">
               <PerfumeFlacon
                 perfume={perfume}
                 engraving={engraving}
                 plaqueFinish={plaqueFinish}
-                size="lg"
+                size={isMobile ? 'sm' : 'lg'}
                 showSpritzEffect={isSpritzing}
                 onSpritz={handleSpritz}
                 allowDragRotate={true}

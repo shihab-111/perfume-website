@@ -22,6 +22,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [monogramText, setMonogramText] = useState('E · V');
   const [selectedSize, setSelectedSize] = useState<'50ml' | '100ml'>('100ml');
   const [plaqueFinish, setPlaqueFinish] = useState<PlaqueFinish>('gold');
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleSpritz = () => {
     luxuryAudio.playSpritz();
@@ -218,7 +226,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 perfume={heroPerfume}
                 engraving={monogramText}
                 plaqueFinish={plaqueFinish}
-                size="hero"
+                size={isMobile ? 'md' : 'hero'}
                 showSpritzEffect={isSpritzing}
                 onSpritz={handleSpritz}
                 allowDragRotate={true}

@@ -64,6 +64,27 @@ export const PerfumeFlacon: React.FC<PerfumeFlaconProps> = ({
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!allowDragRotate) return;
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      startXRef.current = e.touches[0].clientX - dragRotX;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    const newRot = (e.touches[0].clientX - startXRef.current) * 0.45;
+    const clamped = Math.max(-40, Math.min(40, newRot));
+    setDragRotX(clamped);
+  };
+
+  const handleTouchEnd = () => {
+    if (isDragging) {
+      setIsDragging(false);
+    }
+  };
+
   // Dimensions configuration
   const sizeMap = {
     sm: { width: 140, height: 210, viewBox: '0 0 200 300' },
@@ -180,13 +201,17 @@ export const PerfumeFlacon: React.FC<PerfumeFlaconProps> = ({
 
   return (
     <div
-      className="relative flex items-center justify-center select-none group cursor-grab active:cursor-grabbing"
+      className="relative flex items-center justify-center select-none group cursor-grab active:cursor-grabbing touch-pan-y"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMoveCapture={handleWindowMouseMove}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
       style={{ perspective: '1200px' }}
     >
       {/* Dynamic ambient fragrance aura glow with pulsing breathing */}
@@ -255,7 +280,10 @@ export const PerfumeFlacon: React.FC<PerfumeFlaconProps> = ({
           viewBox={currentSize.viewBox}
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="drop-shadow-[0_25px_45px_rgba(0,0,0,0.9)] filter transition-all"
+          className="drop-shadow-[0_25px_45px_rgba(0,0,0,0.9)] filter transition-all max-w-[82vw] sm:max-w-none h-auto"
+          style={{
+            maxHeight: size === 'hero' ? 'min(480px, 52vh)' : size === 'lg' ? 'min(380px, 45vh)' : undefined,
+          }}
         >
           <defs>
             {/* Cap Shaders */}

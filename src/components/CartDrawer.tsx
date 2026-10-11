@@ -51,7 +51,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       <div className="absolute inset-0" onClick={onClose} />
 
       <div
-        className={`relative w-full max-w-md h-full flex flex-col justify-between shadow-2xl z-10 overflow-hidden border-l transition-colors duration-300 ${
+        className={`relative w-full max-w-md h-[100dvh] max-h-[100dvh] flex flex-col justify-between shadow-2xl z-10 overflow-hidden border-l transition-colors duration-300 ${
           isLight
             ? 'bg-[#FAF8F5] border-[#E2DDD2] text-[#1E1C18]'
             : 'bg-[#0F1117] border-white/10 text-[#E8E6E3]'

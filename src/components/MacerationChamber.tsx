@@ -14,6 +14,14 @@ export const MacerationChamber: React.FC<MacerationChamberProps> = ({ perfumes }
   const { isLight } = useTheme();
   const [selectedPerfumeId, setSelectedPerfumeId] = useState(perfumes[0].id);
   const [currentStageIndex, setCurrentStageIndex] = useState(3); // Default Day 90
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const selectedPerfume = perfumes.find((p) => p.id === selectedPerfumeId) || perfumes[0];
   const stages: MacerationStage[] = selectedPerfume.macerationStages || [
@@ -107,11 +115,12 @@ export const MacerationChamber: React.FC<MacerationChamberProps> = ({ perfumes }
 
           {/* Perfume Selector Tabs */}
           <div
-            className={`flex items-center gap-1.5 p-1 rounded-lg shrink-0 overflow-x-auto border ${
+            className={`flex items-center gap-1.5 p-1 rounded-lg shrink-0 overflow-x-auto flex-nowrap border max-w-full ${
               isLight
                 ? 'bg-black/[0.04] border-[#DDD5C7]'
                 : 'bg-white/[0.04] border-white/10'
             }`}
+            style={{ WebkitOverflowScrolling: 'touch' }}
           >
             {perfumes.map((p) => (
               <button
@@ -120,7 +129,7 @@ export const MacerationChamber: React.FC<MacerationChamberProps> = ({ perfumes }
                   luxuryAudio.playTap();
                   setSelectedPerfumeId(p.id);
                 }}
-                className={`px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap cursor-pointer shrink-0 ${
                   p.id === selectedPerfumeId
                     ? 'bg-[#C9A96E] text-[#090A0D]'
                     : isLight
@@ -154,7 +163,7 @@ export const MacerationChamber: React.FC<MacerationChamberProps> = ({ perfumes }
             >
               <PerfumeFlacon
                 perfume={maceratedPerfume}
-                size="hero"
+                size={isMobile ? 'md' : 'hero'}
                 interactive={true}
               />
             </motion.div>
