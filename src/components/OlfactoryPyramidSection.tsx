@@ -212,11 +212,11 @@ export const OlfactoryPyramidSection: React.FC<OlfactoryPyramidSectionProps> = (
               {currentNotes.map((note, index) => (
                 <div
                   key={index}
-                  className="p-3.5 rounded-lg bg-white/[0.03] border border-white/5 space-y-1 hover:border-[#C9A96E]/30 transition-colors"
+                  className="p-3.5 rounded-lg bg-white/[0.03] border border-white/5 space-y-1.5 hover:border-[#C9A96E]/30 transition-colors"
                 >
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-medium text-[#F5F2EB]">{note.name}</span>
-                    <span className="text-[11px] text-[#C9A96E] flex items-center gap-1">
+                    <span className="text-[11px] text-[#C9A96E] flex items-center gap-1 font-mono">
                       <Globe className="w-3 h-3" />
                       <span>{note.origin}</span>
                     </span>
@@ -224,6 +224,20 @@ export const OlfactoryPyramidSection: React.FC<OlfactoryPyramidSectionProps> = (
                   <p className="text-[11px] text-[#8C8880] leading-relaxed">
                     {note.scentCharacter}
                   </p>
+                  {(note.temperature || note.volatility) && (
+                    <div className="flex items-center gap-2 pt-1 text-[10px] text-[#A8A49A]">
+                      {note.temperature && (
+                        <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/5 font-mono">
+                          {note.temperature}
+                        </span>
+                      )}
+                      {note.volatility && (
+                        <span className="text-[#C9A96E] font-mono">
+                          Volatility: {note.volatility}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

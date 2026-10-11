@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { X, Sparkles, Droplets, Check, Shield, Globe } from 'lucide-react';
-import { Perfume } from '../types/perfume';
+import { Perfume, PlaqueFinish } from '../types/perfume';
 import { PerfumeFlacon } from './PerfumeFlacon';
 import { luxuryAudio } from '../utils/audio';
 
 interface ProductModalProps {
   perfume: Perfume | null;
   onClose: () => void;
-  onAddToCart: (perfume: Perfume, size: '50ml' | '100ml', engraving?: string) => void;
+  onAddToCart: (perfume: Perfume, size: '50ml' | '100ml', engraving?: string, plaqueFinish?: PlaqueFinish) => void;
 }
 
 export const ProductModal: React.FC<ProductModalProps> = ({
@@ -18,6 +19,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   if (!perfume) return null;
 
   const [selectedSize, setSelectedSize] = useState<'50ml' | '100ml'>('100ml');
+  const [plaqueFinish, setPlaqueFinish] = useState<PlaqueFinish>('gold');
   const [engraving, setEngraving] = useState('');
   const [isSpritzing, setIsSpritzing] = useState(false);
 
@@ -31,14 +33,26 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
   const handleAdd = () => {
     luxuryAudio.playChime(784, 0.08);
-    onAddToCart(perfume, selectedSize, engraving || undefined);
+    onAddToCart(perfume, selectedSize, engraving || undefined, plaqueFinish);
     onClose();
   };
 
+  const plaqueOptions: { id: PlaqueFinish; label: string; color: string }[] = [
+    { id: 'gold', label: '24K Gold', color: '#D4AF37' },
+    { id: 'palladium', label: 'Palladium', color: '#C0C5D0' },
+    { id: 'rose', label: 'Rose Vermeil', color: '#E8A5A5' },
+    { id: 'bronze', label: 'Antique Bronze', color: '#A06D46' },
+  ];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-[#111319] border border-white/10 rounded-2xl shadow-2xl overflow-hidden my-8">
-        
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.3 }}
+        className="relative w-full max-w-4xl bg-[#111319] border border-white/10 rounded-2xl shadow-2xl overflow-hidden my-8"
+      >
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -61,21 +75,23 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               </span>
             </div>
 
-            {/* 3D Flacon */}
+            {/* 3D Flacon with Plaque and Drag Rotation */}
             <div className="my-6">
               <PerfumeFlacon
                 perfume={perfume}
                 engraving={engraving}
+                plaqueFinish={plaqueFinish}
                 size="lg"
                 showSpritzEffect={isSpritzing}
                 onSpritz={handleSpritz}
+                allowDragRotate={true}
               />
             </div>
 
             {/* Spritz Button */}
             <button
               onClick={handleSpritz}
-              className="px-4 py-2 bg-white/[0.06] hover:bg-[#C9A96E] text-white hover:text-[#090A0D] text-xs uppercase tracking-wider font-medium rounded transition-all flex items-center gap-2"
+              className="px-4 py-2 bg-white/[0.06] hover:bg-[#C9A96E] text-white hover:text-[#090A0D] text-xs uppercase tracking-wider font-medium rounded transition-all flex items-center gap-2 cursor-pointer"
             >
               <Droplets className="w-3.5 h-3.5" />
               <span>{isSpritzing ? 'Atomizing Vapor...' : 'Atomize & Spritz'}</span>
@@ -127,25 +143,29 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               </div>
             </div>
 
-            {/* Key Notes Summary */}
-            <div className="grid grid-cols-3 gap-2 text-xs border-y border-white/10 py-3">
-              <div>
-                <span className="text-[10px] text-[#7A766F] uppercase tracking-wider block">Top Notes</span>
-                <span className="text-[#E0DCCE] text-xs font-serif mt-0.5 block truncate">
-                  {perfume.pyramid.top[0].name}
-                </span>
-              </div>
-              <div>
-                <span className="text-[10px] text-[#7A766F] uppercase tracking-wider block">Heart Notes</span>
-                <span className="text-[#E0DCCE] text-xs font-serif mt-0.5 block truncate">
-                  {perfume.pyramid.heart[0].name}
-                </span>
-              </div>
-              <div>
-                <span className="text-[10px] text-[#7A766F] uppercase tracking-wider block">Base Notes</span>
-                <span className="text-[#E0DCCE] text-xs font-serif mt-0.5 block truncate">
-                  {perfume.pyramid.base[0].name}
-                </span>
+            {/* Plaque Finish Switcher */}
+            <div className="space-y-1.5">
+              <label className="text-xs text-[#8C8880] uppercase tracking-wider block">
+                Plaque Metal Finish:
+              </label>
+              <div className="grid grid-cols-4 gap-2">
+                {plaqueOptions.map((opt) => (
+                  <button
+                    key={opt.id}
+                    onClick={() => {
+                      luxuryAudio.playTap();
+                      setPlaqueFinish(opt.id);
+                    }}
+                    className={`p-2 rounded-lg border text-center transition-all ${
+                      plaqueFinish === opt.id
+                        ? 'border-[#C9A96E] bg-white/[0.06] text-white'
+                        : 'border-white/10 text-[#8C8880] hover:text-white'
+                    }`}
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full inline-block mb-1" style={{ backgroundColor: opt.color }} />
+                    <div className="text-[10px] truncate">{opt.label}</div>
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -189,13 +209,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             {/* Monogram Engraving Field */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center text-xs">
-                <label htmlFor="modal-monogram" className="text-[#8C8880] uppercase tracking-wider">
+                <label htmlFor="modal-monogram-field" className="text-[#8C8880] uppercase tracking-wider">
                   Bespoke Monogram (Gold Plaque):
                 </label>
                 <span className="text-[11px] text-[#C9A96E]">Complimentary</span>
               </div>
               <input
-                id="modal-monogram"
+                id="modal-monogram-field"
                 type="text"
                 maxLength={10}
                 value={engraving}
@@ -214,7 +234,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             {/* Purchase CTA */}
             <button
               onClick={handleAdd}
-              className="w-full py-3.5 bg-gradient-to-r from-[#C9A96E] via-[#DFC287] to-[#B89456] text-[#090A0D] text-xs uppercase tracking-[0.2em] font-semibold rounded hover:opacity-95 shadow-[0_4px_20px_rgba(201,169,110,0.3)] transition-opacity"
+              className="w-full py-3.5 bg-gradient-to-r from-[#C9A96E] via-[#DFC287] to-[#B89456] text-[#090A0D] text-xs uppercase tracking-[0.2em] font-semibold rounded hover:opacity-95 shadow-[0_4px_20px_rgba(201,169,110,0.3)] transition-all cursor-pointer"
             >
               Acquire Flacon (${price} USD)
             </button>
@@ -223,7 +243,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
         </div>
 
-      </div>
+      </motion.div>
     </div>
   );
 };

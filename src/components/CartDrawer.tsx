@@ -94,6 +94,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         </span>
                         <h4 className="font-serif text-base text-[#F5F2EB]">{item.name}</h4>
                         <div className="text-xs text-[#87837A]">{item.size}</div>
+                        {item.plaqueFinish && (
+                          <div className="text-[10px] text-[#A8A49A] uppercase tracking-wider">
+                            Plaque: {item.plaqueFinish === 'gold' ? '24K Gold' : item.plaqueFinish === 'palladium' ? 'Palladium' : item.plaqueFinish === 'rose' ? 'Rose Vermeil' : 'Antique Bronze'}
+                          </div>
+                        )}
                         {item.engraving && (
                           <div className="text-[11px] text-[#C9A96E] italic mt-0.5">
                             Engraving: &ldquo;{item.engraving}&rdquo;

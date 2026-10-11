@@ -2,6 +2,8 @@ export interface OlfactoryNote {
   name: string;
   origin: string;
   scentCharacter: string;
+  temperature?: 'Crisp & Cool' | 'Warm & Resinous' | 'Velvet & Floral' | 'Smoky & Earthy';
+  volatility?: 'High' | 'Medium' | 'Low';
 }
 
 export interface OlfactoryPyramid {
@@ -9,6 +11,18 @@ export interface OlfactoryPyramid {
   heart: OlfactoryNote[];
   base: OlfactoryNote[];
 }
+
+export interface MacerationStage {
+  day: number;
+  label: string;
+  status: string;
+  liquidColor: string;
+  liquidOpacity: number;
+  description: string;
+  accordDominance: string;
+}
+
+export type PlaqueFinish = 'gold' | 'palladium' | 'rose' | 'bronze';
 
 export interface Perfume {
   id: string;
@@ -31,6 +45,7 @@ export interface Perfume {
   accentColor: string;
   bottleTheme: 'obsidian' | 'amber' | 'crystal' | 'emerald' | 'garnet';
   harvestNotes: string;
+  macerationStages?: MacerationStage[];
   featured?: boolean;
 }
 
@@ -43,6 +58,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   engraving?: string;
+  plaqueFinish?: PlaqueFinish;
   liquidColor: string;
 }
 
@@ -53,7 +69,7 @@ export interface QuizQuestion {
   options: {
     label: string;
     description: string;
-    affinity: string; // scent family
+    affinity: string;
     scentId: string;
   }[];
 }

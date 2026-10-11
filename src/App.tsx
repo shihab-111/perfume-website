@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
+import { ToonhubCarousel } from './components/ToonhubCarousel';
 import { CollectionGrid } from './components/CollectionGrid';
 import { OlfactoryPyramidSection } from './components/OlfactoryPyramidSection';
+import { MacerationChamber } from './components/MacerationChamber';
 import { DiscoveryCoffretBuilder } from './components/DiscoveryCoffretBuilder';
 import { MaisonCraftsmanship } from './components/MaisonCraftsmanship';
 import { FragranceSommelier } from './components/FragranceSommelier';
@@ -11,11 +14,14 @@ import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { Footer } from './components/Footer';
 import { MistCanvas } from './components/MistCanvas';
+import { CursorAura } from './components/CursorAura';
 import { PERFUMES, DISCOVERY_COFFRET_PRICE } from './data/perfumes';
-import { CartItem, Perfume } from './types/perfume';
+import { CartItem, Perfume, PlaqueFinish } from './types/perfume';
 import { luxuryAudio } from './utils/audio';
 
 export default function App() {
+  const [atmosphereMode, setAtmosphereMode] = useState<'nuit' | 'jour'>('nuit');
+
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       id: 'initial-oud',
@@ -26,6 +32,7 @@ export default function App() {
       price: 480,
       quantity: 1,
       engraving: 'E · V',
+      plaqueFinish: 'gold',
       liquidColor: '#C4823F',
     },
   ]);
@@ -46,17 +53,23 @@ export default function App() {
     }, 3200);
   };
 
+  const handleToggleAtmosphere = () => {
+    setAtmosphereMode((prev) => (prev === 'nuit' ? 'jour' : 'nuit'));
+  };
+
   const handleAddToCart = (
     perfume: Perfume,
     size: '50ml' | '100ml',
-    engraving?: string
+    engraving?: string,
+    plaqueFinish: PlaqueFinish = 'gold'
   ) => {
     const price = size === '100ml' ? perfume.price100ml : perfume.price50ml;
     const existingIndex = cartItems.findIndex(
       (item) =>
         item.perfumeId === perfume.id &&
         item.size === size &&
-        item.engraving === engraving
+        item.engraving === engraving &&
+        item.plaqueFinish === plaqueFinish
     );
 
     if (existingIndex > -1) {
@@ -73,6 +86,7 @@ export default function App() {
         price,
         quantity: 1,
         engraving,
+        plaqueFinish,
         liquidColor: perfume.liquidColor,
       };
       setCartItems([...cartItems, newItem]);
@@ -136,9 +150,17 @@ export default function App() {
   };
 
   const cartTotalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const isJour = atmosphereMode === 'jour';
 
   return (
-    <div className="min-h-screen bg-[#090A0D] text-[#E8E6E3] relative selection:bg-[#C9A96E]/25">
+    <div
+      className={`min-h-screen relative selection:bg-[#C9A96E]/25 transition-colors duration-700 ${
+        isJour ? 'bg-[#FAF8F5] text-[#1E1C18]' : 'bg-[#090A0D] text-[#E8E6E3]'
+      }`}
+    >
+      {/* Luxury Trailing Cursor Aura */}
+      <CursorAura />
+
       {/* Dynamic Mist Particles Canvas */}
       <MistCanvas />
 
@@ -147,6 +169,8 @@ export default function App() {
         cartCount={cartTotalCount}
         onOpenCart={() => setIsCartOpen(true)}
         onOpenQuiz={() => setIsQuizOpen(true)}
+        atmosphereMode={atmosphereMode}
+        onToggleAtmosphere={handleToggleAtmosphere}
       />
 
       {/* Main Content Area */}
@@ -154,6 +178,13 @@ export default function App() {
         {/* Hero Section */}
         <HeroSection
           heroPerfume={heroPerfume}
+          onSelectPerfume={(p) => setSelectedPerfume(p)}
+          onQuickAdd={handleAddToCart}
+          atmosphereMode={atmosphereMode}
+        />
+
+        {/* 3D Flacon Carousel Experience (in the middle before Grand Flacons) */}
+        <ToonhubCarousel
           onSelectPerfume={(p) => setSelectedPerfume(p)}
           onQuickAdd={handleAddToCart}
         />
@@ -171,10 +202,16 @@ export default function App() {
           onOpenDetails={(p) => setSelectedPerfume(p)}
         />
 
+        {/* Interactive 90-Day Maceration Chamber */}
+        <div id="maceration">
+          <MacerationChamber perfumes={PERFUMES} />
+        </div>
+
         {/* Discovery Coffret Builder */}
         <DiscoveryCoffretBuilder
           perfumes={PERFUMES}
           onAddCoffret={handleAddCoffret}
+          atmosphereMode={atmosphereMode}
         />
 
         {/* Savoir-Faire / Craftsmanship Editorial */}
@@ -220,12 +257,19 @@ export default function App() {
       />
 
       {/* Subtle Toast Feedback Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 p-4 bg-[#14161F]/95 border border-[#C9A96E]/40 rounded-xl shadow-2xl backdrop-blur-md text-xs text-[#F5F2EB] flex items-center gap-2.5 animate-fadeIn">
-          <span className="text-[#C9A96E]">✦</span>
-          <span>{toastMessage}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 right-6 z-50 p-4 bg-[#14161F]/95 border border-[#C9A96E]/40 rounded-xl shadow-2xl backdrop-blur-md text-xs text-[#F5F2EB] flex items-center gap-2.5"
+          >
+            <span className="text-[#C9A96E]">✦</span>
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
