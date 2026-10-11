@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Check, Plus, Gift, Sparkles, Box, ShieldCheck } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Check, Plus, Gift, Sparkles } from 'lucide-react';
 import { Perfume } from '../types/perfume';
 import { DISCOVERY_COFFRET_PRICE } from '../data/perfumes';
+import { useTheme } from '../context/ThemeContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface DiscoveryCoffretBuilderProps {
   perfumes: Perfume[];
   onAddCoffret: (selectedIds: string[], giftMessage?: string) => void;
-  atmosphereMode?: 'nuit' | 'jour';
 }
 
 export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = ({
   perfumes,
   onAddCoffret,
-  atmosphereMode = 'nuit',
 }) => {
+  const { isLight } = useTheme();
   const [selectedIds, setSelectedIds] = useState<string[]>([
     perfumes[0].id,
     perfumes[1].id,
@@ -23,9 +23,6 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
   ]);
   const [giftNote, setGiftNote] = useState('');
   const [showGiftInput, setShowGiftInput] = useState(false);
-  const [isBoxOpen, setIsBoxOpen] = useState(true);
-
-  const isJour = atmosphereMode === 'jour';
 
   const toggleSelect = (id: string) => {
     luxuryAudio.playTap();
@@ -52,10 +49,17 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
   );
 
   return (
-    <section id="discovery-set" className="py-24 relative bg-[#090A0E] border-t border-white/[0.06] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
+    <section
+      id="discovery-set"
+      className={`min-h-screen py-20 sm:py-28 relative border-t transition-colors duration-700 flex flex-col justify-center overflow-hidden ${
+        isLight
+          ? 'bg-[#FAF7F0] border-[#E8E2D5]'
+          : 'bg-[#090A0E] border-white/[0.06]'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto">
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           {/* Left Column: Coffret Visual Presentation */}
           <div className="lg:col-span-6 space-y-6">
@@ -63,26 +67,43 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
               <span className="text-xs uppercase tracking-[0.25em] text-[#C9A96E] font-medium block">
                 The Initiation Ritual
               </span>
-              <h2 className="text-3xl md:text-5xl font-serif text-[#F8F6F0]">
+              <h2
+                className={`text-3xl md:text-5xl font-serif ${
+                  isLight ? 'text-[#1E1C18]' : 'text-[#F8F6F0]'
+                }`}
+              >
                 Le Coffret Découverte
               </h2>
-              <p className="text-sm text-[#A8A49A] leading-relaxed font-light max-w-lg">
+              <p
+                className={`text-sm leading-relaxed font-light max-w-lg ${
+                  isLight ? 'text-[#635D52]' : 'text-[#A8A49A]'
+                }`}
+              >
                 Curate three 10ml travel flacons presented in a black lacquer jewel box lined with silk velvet.
                 Includes an enclosed certificate redeemable for $95 towards your first full 100ml flacon.
               </p>
             </div>
 
-            {/* The 3 Travel Flacons in 3D Velvet Presentation Case */}
-            <div className="p-8 rounded-2xl bg-gradient-to-b from-[#151722] via-[#0E1017] to-[#0A0C10] border border-white/10 shadow-2xl relative overflow-hidden group">
-              
+            {/* The 3 Travel Flacons in 3D Presentation Case */}
+            <div
+              className={`p-6 sm:p-8 rounded-2xl border shadow-2xl relative overflow-hidden group ${
+                isLight
+                  ? 'bg-gradient-to-b from-[#FAF8F5] via-[#F3ECE0] to-[#EAE2D3] border-[#E2DDD2]'
+                  : 'bg-gradient-to-b from-[#151722] via-[#0E1017] to-[#0A0C10] border-white/10'
+              }`}
+            >
               {/* Box Top Filigree Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6 text-[11px] uppercase tracking-[0.2em] text-[#8C8880]">
+              <div
+                className={`flex items-center justify-between border-b pb-4 mb-6 text-[11px] uppercase tracking-[0.2em] ${
+                  isLight ? 'border-[#E2DDD2] text-[#7D766A]' : 'border-white/10 text-[#8C8880]'
+                }`}
+              >
                 <span>L’Atelier Coffret · 3 × 10 ml</span>
                 <span className="text-[#C9A96E] font-medium">Bespoke Velvet Inset</span>
               </div>
 
               {/* 3 Travel Vials with motion hover & liquid level glow */}
-              <div className="grid grid-cols-3 gap-5 items-end justify-center py-6">
+              <div className="grid grid-cols-3 gap-3 sm:gap-5 items-end justify-center py-6">
                 {selectedPerfumes.map((p, idx) => (
                   <motion.div
                     key={`${p.id}-${idx}`}
@@ -92,9 +113,15 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
                     className="flex flex-col items-center space-y-3"
                   >
                     {/* Slender 10ml travel flacon */}
-                    <div className="relative w-14 h-40 rounded-lg border border-white/20 bg-white/[0.04] p-1.5 flex flex-col justify-between items-center shadow-2xl overflow-hidden hover:border-[#C9A96E] transition-all hover:-translate-y-2">
+                    <div
+                      className={`relative w-12 sm:w-14 h-36 sm:h-40 rounded-lg border p-1.5 flex flex-col justify-between items-center shadow-2xl overflow-hidden hover:border-[#C9A96E] transition-all hover:-translate-y-2 ${
+                        isLight
+                          ? 'bg-white/80 border-[#DDD5C7]'
+                          : 'bg-white/[0.04] border-white/20'
+                      }`}
+                    >
                       {/* Gold atomizer cap */}
-                      <div className="w-9 h-9 rounded-t bg-gradient-to-r from-[#DFBF82] via-[#FFF2D6] to-[#C49B55] border-b border-black/30 shadow-sm" />
+                      <div className="w-8 sm:w-9 h-8 sm:h-9 rounded-t bg-gradient-to-r from-[#DFBF82] via-[#FFF2D6] to-[#C49B55] border-b border-black/30 shadow-xs" />
                       
                       {/* Fluid chamber with glowing gradient */}
                       <div
@@ -103,31 +130,37 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
                       />
 
                       {/* Mini Plaque */}
-                      <div className="absolute inset-x-2 top-16 bottom-3 bg-[#0A0B0E]/90 border border-[#C9A96E]/60 rounded-[3px] p-1 flex flex-col items-center justify-center text-center backdrop-blur-xs">
-                        <span className="text-[7.5px] text-[#C9A96E] uppercase font-serif font-bold tracking-wider leading-tight">
+                      <div className="absolute inset-x-1.5 sm:inset-x-2 top-14 sm:top-16 bottom-2.5 sm:bottom-3 bg-[#0A0B0E]/90 border border-[#C9A96E]/60 rounded-[3px] p-1 flex flex-col items-center justify-center text-center">
+                        <span className="text-[7px] sm:text-[7.5px] text-[#C9A96E] uppercase font-serif font-bold tracking-wider leading-tight">
                           {p.name}
                         </span>
-                        <span className="text-[6.5px] text-white/50 tracking-tighter mt-0.5">10 ML</span>
+                        <span className="text-[6px] sm:text-[6.5px] text-white/50 tracking-tighter mt-0.5">10 ML</span>
                       </div>
                     </div>
 
                     <div className="text-center space-y-0.5">
-                      <span className="text-xs font-serif text-[#F5F2EB] block truncate max-w-[105px]">
+                      <span
+                        className={`text-xs font-serif block truncate max-w-[95px] sm:max-w-[105px] ${
+                          isLight ? 'text-[#1E1C18]' : 'text-[#F5F2EB]'
+                        }`}
+                      >
                         {p.name}
                       </span>
-                      <span className="text-[10px] text-[#8C8880] block font-mono">Slot {idx + 1}</span>
+                      <span className={`text-[10px] block font-mono ${isLight ? 'text-[#7D766A]' : 'text-[#8C8880]'}`}>
+                        Slot {idx + 1}
+                      </span>
                     </div>
                   </motion.div>
                 ))}
               </div>
 
               {/* Voucher guarantee trust note */}
-              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-[#C9A96E]">
+              <div className={`mt-6 pt-4 border-t flex items-center justify-between text-xs text-[#C9A96E] ${isLight ? 'border-[#E2DDD2]' : 'border-white/10'}`}>
                 <span className="flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>100% Purchase Credit Included</span>
                 </span>
-                <span className="text-white font-medium tabular-nums text-sm">
+                <span className={`font-medium tabular-nums text-sm ${isLight ? 'text-[#1E1C18]' : 'text-white'}`}>
                   ${DISCOVERY_COFFRET_PRICE} USD
                 </span>
               </div>
@@ -137,7 +170,7 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
           {/* Right Column: Interactive Flacon Picker */}
           <div className="lg:col-span-6 space-y-6">
             <div className="space-y-1">
-              <div className="text-xs text-[#8C8880] uppercase tracking-wider flex justify-between items-center">
+              <div className={`text-xs uppercase tracking-wider flex justify-between items-center ${isLight ? 'text-[#7D766A]' : 'text-[#8C8880]'}`}>
                 <span>Select 3 Fragrances for your Coffret</span>
                 <span className="font-mono text-[#C9A96E]">{selectedIds.length}/3 selected</span>
               </div>
@@ -154,7 +187,11 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
                     onClick={() => toggleSelect(perfume.id)}
                     className={`p-4 rounded-xl border flex items-center justify-between gap-4 cursor-pointer transition-all ${
                       isSelected
-                        ? 'bg-[#181A24] border-[#C9A96E] shadow-sm'
+                        ? isLight
+                          ? 'bg-[#C9A96E]/12 border-[#C9A96E] shadow-xs'
+                          : 'bg-[#181A24] border-[#C9A96E] shadow-sm'
+                        : isLight
+                        ? 'bg-white border-[#E5DFD2] hover:border-[#D1C9BA]'
                         : 'bg-white/[0.02] border-white/5 hover:border-white/15'
                     }`}
                   >
@@ -163,6 +200,8 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
                         className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors shrink-0 ${
                           isSelected
                             ? 'bg-[#C9A96E] border-[#C9A96E] text-[#090A0D]'
+                            : isLight
+                            ? 'border-[#C8BFB0]'
                             : 'border-white/20'
                         }`}
                       >
@@ -171,14 +210,14 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
 
                       <div className="truncate">
                         <div className="flex items-center gap-2">
-                          <span className="font-serif text-base text-[#F8F6F0]">
+                          <span className={`font-serif text-base ${isLight ? 'text-[#1E1C18]' : 'text-[#F8F6F0]'}`}>
                             {perfume.name}
                           </span>
-                          <span className="text-[10px] text-[#A8A49A] uppercase tracking-wider font-mono">
+                          <span className={`text-[10px] uppercase tracking-wider font-mono ${isLight ? 'text-[#7D766A]' : 'text-[#A8A49A]'}`}>
                             {perfume.category}
                           </span>
                         </div>
-                        <p className="text-xs text-[#807D75] truncate mt-0.5">
+                        <p className={`text-xs truncate mt-0.5 ${isLight ? 'text-[#696357]' : 'text-[#807D75]'}`}>
                           {perfume.tagline}
                         </p>
                       </div>
@@ -203,8 +242,14 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
                   <span>Add complimentary handwritten calligraphy card message</span>
                 </button>
               ) : (
-                <div className="space-y-2 p-3 bg-white/[0.03] rounded-lg border border-white/10">
-                  <label className="text-xs text-[#B0ACA2] block">
+                <div
+                  className={`space-y-2 p-3 rounded-lg border ${
+                    isLight
+                      ? 'bg-white border-[#E2DDD2]'
+                      : 'bg-white/[0.03] border-white/10'
+                  }`}
+                >
+                  <label className={`text-xs block ${isLight ? 'text-[#696357]' : 'text-[#B0ACA2]'}`}>
                     Handwritten Calligraphy Card (Complimentary):
                   </label>
                   <textarea
@@ -212,7 +257,11 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
                     value={giftNote}
                     onChange={(e) => setGiftNote(e.target.value)}
                     placeholder="Enter your personal dedication..."
-                    className="w-full bg-black/40 border border-white/15 rounded p-2 text-xs text-white placeholder:text-white/20 focus:border-[#C9A96E] focus:outline-none"
+                    className={`w-full rounded p-2 text-xs focus:border-[#C9A96E] focus:outline-none border ${
+                      isLight
+                        ? 'bg-[#FAF7F2] border-[#DDD5C7] text-[#1E1C18] placeholder:text-[#A8A092]'
+                        : 'bg-black/40 border-white/15 text-white placeholder:text-white/20'
+                    }`}
                   />
                 </div>
               )}
@@ -225,7 +274,7 @@ export const DiscoveryCoffretBuilder: React.FC<DiscoveryCoffretBuilderProps> = (
               className={`w-full py-3.5 rounded text-xs uppercase tracking-[0.2em] font-semibold transition-all flex items-center justify-center gap-2 ${
                 selectedIds.length === 3
                   ? 'bg-gradient-to-r from-[#C9A96E] via-[#DFC287] to-[#B89456] text-[#090A0D] hover:opacity-95 shadow-[0_4px_20px_rgba(201,169,110,0.3)] hover:scale-[1.01] active:scale-[0.99] cursor-pointer'
-                  : 'bg-white/10 text-white/40 cursor-not-allowed'
+                  : 'bg-black/10 text-black/30 dark:bg-white/10 dark:text-white/40 cursor-not-allowed'
               }`}
             >
               <Plus className="w-4 h-4" />

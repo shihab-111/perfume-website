@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { X, Sparkles, Droplets, Check, Shield, Globe } from 'lucide-react';
+import { motion } from 'motion/react';
+import { X, Droplets, Shield } from 'lucide-react';
 import { Perfume, PlaqueFinish } from '../types/perfume';
 import { PerfumeFlacon } from './PerfumeFlacon';
+import { useTheme } from '../context/ThemeContext';
 import { luxuryAudio } from '../utils/audio';
 
 interface ProductModalProps {
@@ -16,6 +17,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   onClose,
   onAddToCart,
 }) => {
+  const { isLight } = useTheme();
+
   if (!perfume) return null;
 
   const [selectedSize, setSelectedSize] = useState<'50ml' | '100ml'>('100ml');
@@ -45,19 +48,27 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.3 }}
-        className="relative w-full max-w-4xl bg-[#111319] border border-white/10 rounded-2xl shadow-2xl overflow-hidden my-8"
+        className={`relative w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden my-auto max-h-[92vh] overflow-y-auto border ${
+          isLight
+            ? 'bg-[#FAF8F5] border-[#E2DDD2] text-[#1E1C18]'
+            : 'bg-[#111319] border-white/10 text-[#E8E6E3]'
+        }`}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
           aria-label="Close product view"
-          className="absolute top-5 right-5 z-20 p-2 text-white/50 hover:text-white rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+          className={`absolute top-4 right-4 sm:top-5 sm:right-5 z-20 p-2 rounded-full transition-colors cursor-pointer ${
+            isLight
+              ? 'text-black/50 hover:text-black bg-black/5 hover:bg-black/10'
+              : 'text-white/50 hover:text-white bg-white/5 hover:bg-white/10'
+          }`}
         >
           <X className="w-5 h-5" />
         </button>
@@ -65,18 +76,24 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-12 items-stretch">
           
           {/* Left Column: Visual Flacon Showcase */}
-          <div className="md:col-span-5 bg-gradient-to-b from-[#161822] to-[#0D0F14] p-8 flex flex-col items-center justify-between border-b md:border-b-0 md:border-r border-white/10 relative">
+          <div
+            className={`md:col-span-5 p-6 sm:p-8 flex flex-col items-center justify-between border-b md:border-b-0 md:border-r relative ${
+              isLight
+                ? 'bg-gradient-to-b from-[#F2ECE0] to-[#E8E1D2] border-[#E2DDD2]'
+                : 'bg-gradient-to-b from-[#161822] to-[#0D0F14] border-white/10'
+            }`}
+          >
             <div className="text-center">
               <span className="text-[11px] uppercase tracking-[0.25em] text-[#C9A96E] font-medium block">
                 {perfume.category}
               </span>
-              <span className="text-xs text-[#87837A] font-mono">
+              <span className={`text-xs font-mono ${isLight ? 'text-[#7D766A]' : 'text-[#87837A]'}`}>
                 {perfume.concentration}
               </span>
             </div>
 
             {/* 3D Flacon with Plaque and Drag Rotation */}
-            <div className="my-6">
+            <div className="my-4 sm:my-6">
               <PerfumeFlacon
                 perfume={perfume}
                 engraving={engraving}
@@ -91,7 +108,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             {/* Spritz Button */}
             <button
               onClick={handleSpritz}
-              className="px-4 py-2 bg-white/[0.06] hover:bg-[#C9A96E] text-white hover:text-[#090A0D] text-xs uppercase tracking-wider font-medium rounded transition-all flex items-center gap-2 cursor-pointer"
+              className={`px-4 py-2 text-xs uppercase tracking-wider font-medium rounded transition-all flex items-center gap-2 cursor-pointer border ${
+                isLight
+                  ? 'bg-white/80 border-[#DDD5C7] text-[#1E1C18] hover:bg-[#C9A96E] hover:text-[#090A0D]'
+                  : 'bg-white/[0.06] border-white/10 text-white hover:bg-[#C9A96E] hover:text-[#090A0D]'
+              }`}
             >
               <Droplets className="w-3.5 h-3.5" />
               <span>{isSpritzing ? 'Atomizing Vapor...' : 'Atomize & Spritz'}</span>
@@ -104,7 +125,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             {/* Header & Story */}
             <div className="space-y-3">
               <div className="flex items-baseline justify-between gap-4">
-                <h2 className="text-3xl font-serif text-[#F8F6F0]">
+                <h2 className={`text-2xl sm:text-3xl font-serif ${isLight ? 'text-[#1E1C18]' : 'text-[#F8F6F0]'}`}>
                   {perfume.name}
                 </h2>
                 <div className="text-xl font-medium text-[#C9A96E] tabular-nums whitespace-nowrap">
@@ -112,24 +133,30 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 </div>
               </div>
 
-              <p className="text-xs text-[#A8A49A] leading-relaxed font-light">
+              <p className={`text-xs leading-relaxed font-light ${isLight ? 'text-[#635D52]' : 'text-[#A8A49A]'}`}>
                 {perfume.story}
               </p>
             </div>
 
             {/* Accord Intensity Bars */}
-            <div className="space-y-2 p-3 bg-white/[0.02] border border-white/5 rounded-xl">
-              <div className="text-[11px] uppercase tracking-wider text-[#8C8880] mb-1 font-medium">
+            <div
+              className={`space-y-2 p-3 rounded-xl border ${
+                isLight
+                  ? 'bg-white border-[#E8E2D6]'
+                  : 'bg-white/[0.02] border-white/5'
+              }`}
+            >
+              <div className={`text-[11px] uppercase tracking-wider mb-1 font-medium ${isLight ? 'text-[#7D766A]' : 'text-[#8C8880]'}`}>
                 Olfactory Accords Spectrum
               </div>
               <div className="space-y-1.5">
                 {perfume.accords.map((accord, idx) => (
                   <div key={idx} className="space-y-0.5">
-                    <div className="flex justify-between text-[11px] text-[#B0ACA2]">
-                      <span>{accord.name}</span>
-                      <span className="tabular-nums text-white/50">{accord.percentage}%</span>
+                    <div className="flex justify-between text-[11px]">
+                      <span className={isLight ? 'text-[#1E1C18]' : 'text-[#B0ACA2]'}>{accord.name}</span>
+                      <span className={`tabular-nums ${isLight ? 'text-black/50' : 'text-white/50'}`}>{accord.percentage}%</span>
                     </div>
-                    <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div className={`h-1 rounded-full overflow-hidden ${isLight ? 'bg-black/10' : 'bg-white/10'}`}>
                       <div
                         className="h-full rounded-full transition-all duration-700"
                         style={{
@@ -145,7 +172,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
             {/* Plaque Finish Switcher */}
             <div className="space-y-1.5">
-              <label className="text-xs text-[#8C8880] uppercase tracking-wider block">
+              <label className={`text-xs uppercase tracking-wider block ${isLight ? 'text-[#7D766A]' : 'text-[#8C8880]'}`}>
                 Plaque Metal Finish:
               </label>
               <div className="grid grid-cols-4 gap-2">
@@ -156,9 +183,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                       luxuryAudio.playTap();
                       setPlaqueFinish(opt.id);
                     }}
-                    className={`p-2 rounded-lg border text-center transition-all ${
+                    className={`p-2 rounded-lg border text-center transition-all cursor-pointer ${
                       plaqueFinish === opt.id
-                        ? 'border-[#C9A96E] bg-white/[0.06] text-white'
+                        ? isLight
+                          ? 'border-[#C9A96E] bg-[#C9A96E]/15 text-[#1E1C18]'
+                          : 'border-[#C9A96E] bg-white/[0.06] text-white'
+                        : isLight
+                        ? 'border-[#E0D8CB] text-[#6E675B] hover:text-[#1E1C18]'
                         : 'border-white/10 text-[#8C8880] hover:text-white'
                     }`}
                   >
@@ -171,7 +202,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
             {/* Volume Selection */}
             <div className="space-y-2">
-              <label className="text-xs text-[#8C8880] uppercase tracking-wider block">
+              <label className={`text-xs uppercase tracking-wider block ${isLight ? 'text-[#7D766A]' : 'text-[#8C8880]'}`}>
                 Select Flacon Volume:
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -180,9 +211,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     luxuryAudio.playTap();
                     setSelectedSize('50ml');
                   }}
-                  className={`p-3 rounded-lg border text-left transition-all ${
+                  className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
                     selectedSize === '50ml'
-                      ? 'border-[#C9A96E] bg-white/[0.06] text-white'
+                      ? isLight
+                        ? 'border-[#C9A96E] bg-[#C9A96E]/12 text-[#1E1C18]'
+                        : 'border-[#C9A96E] bg-white/[0.06] text-white'
+                      : isLight
+                      ? 'border-[#E0D8CB] bg-white text-[#6E675B] hover:text-[#1E1C18]'
                       : 'border-white/10 bg-white/[0.02] text-[#8C8880] hover:text-white'
                   }`}
                 >
@@ -194,9 +229,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     luxuryAudio.playTap();
                     setSelectedSize('100ml');
                   }}
-                  className={`p-3 rounded-lg border text-left transition-all ${
+                  className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
                     selectedSize === '100ml'
-                      ? 'border-[#C9A96E] bg-white/[0.06] text-white'
+                      ? isLight
+                        ? 'border-[#C9A96E] bg-[#C9A96E]/12 text-[#1E1C18]'
+                        : 'border-[#C9A96E] bg-white/[0.06] text-white'
+                      : isLight
+                      ? 'border-[#E0D8CB] bg-white text-[#6E675B] hover:text-[#1E1C18]'
                       : 'border-white/10 bg-white/[0.02] text-[#8C8880] hover:text-white'
                   }`}
                 >
@@ -209,8 +248,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             {/* Monogram Engraving Field */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center text-xs">
-                <label htmlFor="modal-monogram-field" className="text-[#8C8880] uppercase tracking-wider">
-                  Bespoke Monogram (Gold Plaque):
+                <label htmlFor="modal-monogram-field" className={`uppercase tracking-wider ${isLight ? 'text-[#7D766A]' : 'text-[#8C8880]'}`}>
+                  Bespoke Monogram (Metal Plaque):
                 </label>
                 <span className="text-[11px] text-[#C9A96E]">Complimentary</span>
               </div>
@@ -221,12 +260,16 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={engraving}
                 onChange={(e) => setEngraving(e.target.value.toUpperCase())}
                 placeholder="Enter initials (e.g. S · A)"
-                className="w-full bg-black/40 border border-white/15 focus:border-[#C9A96E] rounded px-3 py-2 text-xs text-white uppercase tracking-widest placeholder:text-white/20 focus:outline-none"
+                className={`w-full rounded px-3 py-2 text-xs uppercase tracking-widest focus:outline-none border ${
+                  isLight
+                    ? 'bg-white border-[#DDD5C7] text-[#1E1C18] focus:border-[#C9A96E] placeholder:text-[#A69E90]'
+                    : 'bg-black/40 border-white/15 text-white focus:border-[#C9A96E] placeholder:text-white/20'
+                }`}
               />
             </div>
 
             {/* Inclusions trust note */}
-            <div className="flex items-center gap-2 text-[11px] text-[#8A867E]">
+            <div className={`flex items-center gap-2 text-[11px] ${isLight ? 'text-[#696357]' : 'text-[#8A867E]'}`}>
               <Shield className="w-3.5 h-3.5 text-[#C9A96E] shrink-0" />
               <span>Includes 2 complimentary 2ml test vials & insured worldwide courier.</span>
             </div>

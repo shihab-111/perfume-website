@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { ToonhubCarousel } from './components/ToonhubCarousel';
@@ -19,8 +20,8 @@ import { PERFUMES, DISCOVERY_COFFRET_PRICE } from './data/perfumes';
 import { CartItem, Perfume, PlaqueFinish } from './types/perfume';
 import { luxuryAudio } from './utils/audio';
 
-export default function App() {
-  const [atmosphereMode, setAtmosphereMode] = useState<'nuit' | 'jour'>('nuit');
+function AureliaApp() {
+  const { isLight } = useTheme();
 
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
@@ -51,10 +52,6 @@ export default function App() {
     setTimeout(() => {
       setToastMessage(null);
     }, 3200);
-  };
-
-  const handleToggleAtmosphere = () => {
-    setAtmosphereMode((prev) => (prev === 'nuit' ? 'jour' : 'nuit'));
   };
 
   const handleAddToCart = (
@@ -150,12 +147,11 @@ export default function App() {
   };
 
   const cartTotalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-  const isJour = atmosphereMode === 'jour';
 
   return (
     <div
-      className={`min-h-screen relative selection:bg-[#C9A96E]/25 transition-colors duration-700 ${
-        isJour ? 'bg-[#FAF8F5] text-[#1E1C18]' : 'bg-[#090A0D] text-[#E8E6E3]'
+      className={`min-h-screen w-full relative overflow-x-hidden selection:bg-[#C9A96E]/25 transition-colors duration-700 ${
+        isLight ? 'bg-[#FAF8F5] text-[#1E1C18]' : 'bg-[#090A0D] text-[#E8E6E3]'
       }`}
     >
       {/* Luxury Trailing Cursor Aura */}
@@ -169,21 +165,18 @@ export default function App() {
         cartCount={cartTotalCount}
         onOpenCart={() => setIsCartOpen(true)}
         onOpenQuiz={() => setIsQuizOpen(true)}
-        atmosphereMode={atmosphereMode}
-        onToggleAtmosphere={handleToggleAtmosphere}
       />
 
       {/* Main Content Area */}
-      <main className="relative z-10">
+      <main className="relative z-10 w-full overflow-x-hidden">
         {/* Hero Section */}
         <HeroSection
           heroPerfume={heroPerfume}
           onSelectPerfume={(p) => setSelectedPerfume(p)}
           onQuickAdd={handleAddToCart}
-          atmosphereMode={atmosphereMode}
         />
 
-        {/* 3D Flacon Carousel Experience (in the middle before Grand Flacons) */}
+        {/* 3D Flacon Carousel Experience */}
         <ToonhubCarousel
           onSelectPerfume={(p) => setSelectedPerfume(p)}
           onQuickAdd={handleAddToCart}
@@ -211,7 +204,6 @@ export default function App() {
         <DiscoveryCoffretBuilder
           perfumes={PERFUMES}
           onAddCoffret={handleAddCoffret}
-          atmosphereMode={atmosphereMode}
         />
 
         {/* Savoir-Faire / Craftsmanship Editorial */}
@@ -263,7 +255,11 @@ export default function App() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 right-6 z-50 p-4 bg-[#14161F]/95 border border-[#C9A96E]/40 rounded-xl shadow-2xl backdrop-blur-md text-xs text-[#F5F2EB] flex items-center gap-2.5"
+            className={`fixed bottom-6 right-6 z-50 p-4 rounded-xl shadow-2xl backdrop-blur-md text-xs flex items-center gap-2.5 border ${
+              isLight
+                ? 'bg-white/95 border-[#C9A96E]/50 text-[#1E1C18]'
+                : 'bg-[#14161F]/95 border-[#C9A96E]/40 text-[#F5F2EB]'
+            }`}
           >
             <span className="text-[#C9A96E]">✦</span>
             <span>{toastMessage}</span>
@@ -271,5 +267,13 @@ export default function App() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AureliaApp />
+    </ThemeProvider>
   );
 }
